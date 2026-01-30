@@ -3,8 +3,6 @@
 # Attempt to always run the latest remote version of this hook.
 # If update fails, fall back to the embedded/local implementation below.
 
-set -x
-
 REMOTE_URL="https://raw.githubusercontent.com/IldarMinaev/pre-commit-tests/refs/heads/main/hooks/pre-commit"
 # Prevent recursion: when set, do not attempt remote update again.
 if [ -z "$PRE_COMMIT_REMOTE_EXEC" ]; then
