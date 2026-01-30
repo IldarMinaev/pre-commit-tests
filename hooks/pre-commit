@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# start templated
+INSTALL_PYTHON=/usr/bin/python3
+ARGS=(hook-impl --config=.pre-commit-config.yaml --hook-type=pre-commit --skip-on-missing-config)
+# end templated
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null || true)
+if [ -n "$GIT_DIR" ]; then
+    hooks_to_check=(applypatch-msg commit-msg fsmonitor-watchman post-update pre-applypatch pre-commit pre-merge-commit prepare-commit-msg pre-push pre-rebase pre-receive push-to-checkout sendemail-validate update)
+    for hook in "${hooks_to_check[@]}"; do
+        HOOK_PATH="$GIT_DIR/hooks/$hook"
+        if [ -e "$HOOK_PATH" ] && [ -x "$HOOK_PATH" ]; then
+            # If the hook doesn't look like a pre-commit framework hook, fail.
+            if ! grep -E -q 'pre-commit|pre_commit|-mpre_commit|hook-impl' "$HOOK_PATH"; then
+                echo "Local .git/hooks/$hook exists and is not the pre-commit framework hook. Aborting to avoid running conflicting hooks." 1>&2
+                exit 1
+            fi
+        fi
+    done
+fi
+ARGS+=(--hook-dir "$HERE" -- "$@")
+
+if [ -x "$INSTALL_PYTHON" ]; then
+    exec "$INSTALL_PYTHON" -mpre_commit "${ARGS[@]}"
+elif command -v pre-commit > /dev/null; then
+    exec pre-commit "${ARGS[@]}"
+else
+    echo '`pre-commit` not found.  Did you forget to activate your virtualenv?' 1>&2
+    exit 1
+fi
