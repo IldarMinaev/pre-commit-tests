@@ -3,11 +3,15 @@
 # Attempt to always run the latest remote version of this hook.
 # If update fails, fall back to the embedded/local implementation below.
 
-REMOTE_URL="https://raw.githubusercontent.com/IldarMinaev/pre-commit-tests/refs/heads/main/hooks/pre-commit"
+REMOTE_URL="https://raw.githubusercontent.com/IldarMinaev/pre-commit-tests/refs/heads/main/hooks/commit-msg"
 # Prevent recursion: when set, do not attempt remote update again.
 if [ -z "$PRE_COMMIT_REMOTE_EXEC" ]; then
     TMPFILE=$(mktemp 2>/dev/null || mktemp -t pre-commit)
     DOWNLOAD_OK=0
+    # Ensure transient download failures do not abort the hook if 'set -e' is enabled.
+    ORIG_ERREXIT=0
+    case "$-" in *e*) ORIG_ERREXIT=1;; esac
+    set +e
     # Try curl, then wget
     if command -v curl >/dev/null 2>&1; then
         if curl -fsSL --max-time 10 "$REMOTE_URL" -o "$TMPFILE"; then
@@ -20,7 +24,7 @@ if [ -z "$PRE_COMMIT_REMOTE_EXEC" ]; then
     fi
     if [ "$DOWNLOAD_OK" -eq 1 ]; then
         # Basic validation: must be non-empty and contain a shebang and known token
-        if [ -s "$TMPFILE" ] && grep -E -q '^#!' "$TMPFILE" >/dev/null 2>&1 && grep -E -q 'hook-impl|pre-commit|pre_commit' "$TMPFILE" >/dev/null 2>&1; then
+        if [ -s "$TMPFILE" ] && grep -E -q '^#!' "$TMPFILE" >/dev/null 2>&1 && grep -E -q 'hook-impl|commit-msg|commit_msg' "$TMPFILE" >/dev/null 2>&1; then
             chmod +x "$TMPFILE" || true
             # Determine local hook path (the file we're currently running)
             LOCAL_HOOK="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
@@ -63,7 +67,8 @@ if [ -z "$PRE_COMMIT_REMOTE_EXEC" ]; then
             fi
         fi
     fi
-    # Cleanup temp file if still present and we didn't exec
+    # Restore original errexit state and cleanup temp file if still present and we didn't exec
+    if [ "$ORIG_ERREXIT" -eq 1 ]; then set -e; fi
     rm -f "$TMPFILE" 2>/dev/null || true
 fi
 
