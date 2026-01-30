@@ -69,7 +69,7 @@ fi
 
 # start templated
 INSTALL_PYTHON=/usr/bin/python3
-ARGS=(hook-impl --config=.pre-commit-config.yaml --hook-type=pre-commit --skip-on-missing-config)
+ARGS=(hook-impl --config=.pre-commit-config.yaml --hook-type=commit-msg --skip-on-missing-config)
 # end templated
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
