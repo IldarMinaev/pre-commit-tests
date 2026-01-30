@@ -6,16 +6,6 @@
 * Installed python3
 * Installed pre-commit
 
-## How to use
-
-1. Configure git client
-
-  ```shell
-  mkdir ~/.git-hooks
-  git config --global core.hooksPath ~/.git-hooks
-  
-  ```
-
 ## Install hooks from remote
 
 To install the latest hooks from the remote repository and configure your global hooks directory, run:
