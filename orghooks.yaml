@@ -1,0 +1,20 @@
+repos:
+# Also can check:
+# https://github.com/tagdots/update-pre-commit
+- repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
+  rev: v0.9.0  # Insert the latest tag here and configure renovate bot
+  hooks:
+    - id: pre-commit-update
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0  # Insert the latest tag here and configure renovate bot
+  hooks:
+  - id: check-added-large-files
+  - id: check-executables-have-shebangs
+  - id: check-shebang-scripts-are-executable
+  - id: check-symlinks
+  - id: mixed-line-ending
+  - id: trailing-whitespace
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.30.0  # Insert the latest tag here and configure renovate bot
+  hooks:
+    - id: gitleaks-docker
